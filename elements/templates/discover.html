@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div id="discover-section">
+    <h2 class="discover-title">Discover Amazing Elements</h2>
+    <div id="discover-container">
+        {% for item in discoveries %}
+            <div class="discover-card">
+                <img src="{% static 'images/elements/' %}{{ item.image_filename }}" 
+                     alt="{{ item.element_name }}" class="element-image">
+                <h3>{{ item.element_name }}</h3>
+                <p><strong>Discovered by:</strong> {{ item.discovered_by|default:"Unknown" }} ({{ item.discovery_year|default:"Unknown" }})</p>
+                <p><strong>Trivia:</strong> {{ item.trivia|default:"No trivia available" }}</p>
+            </div>
+        {% empty %}
+            <p>No discoveries available.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;600&display=swap');
+    
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Montserrat', sans-serif;
+        background: url('{% static "images/BG.jpg" %}') no-repeat center center/cover;
+    }
+    
+    #discover-section {
+        background: rgba(0, 0, 0, 0.7);
+        padding: 50px 20px;
+        color: white;
+        text-align: center;
+    }
+    
+    .discover-title {
+        font-size: 3em;
+        font-weight: 600;
+        margin-bottom: 20px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+    
+    #discover-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 25px;
+        animation: fadeIn 1s ease-in;
+    }
+    
+    .discover-card {
+        background: rgba(255, 255, 255, 0.9);
+        color: black;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        width: 320px;
+        text-align: left;
+        transition: transform 0.3s ease-in-out, box-shadow 0.3s;
+        border-left: 5px solid #005f99;
+    }
+    
+    .discover-card:hover {
+        transform: scale(1.07);
+        box-shadow: 0 8px 20px rgba(0, 95, 153, 0.5);
+    }
+    
+    .discover-card h3 {
+        color: #005f99;
+        font-size: 1.6em;
+        font-weight: 600;
+    }
+    
+    .discover-card p {
+        font-size: 1.1em;
+        margin-top: 10px;
+    }
+
+    /* Fix: Set image size to 300px width */
+    .element-image {
+        width: 300px;
+        height: auto;
+        border-radius: 8px;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<script>
+    function loadDiscoveries() {
+        fetch("/discover/")
+            .then(response => response.json())
+            .then(data => {
+                let container = document.getElementById("discover-container");
+                container.innerHTML = "";
+                if (data.length === 0) {
+                    container.innerHTML = "<p>No discoveries found.</p>";
+                    return;
+                }
+                data.forEach(item => {
+                    let card = document.createElement("div");
+                    card.classList.add("discover-card");
+                    card.innerHTML = `
+                        <img src="${item.image_filename}" alt="${item.element_name}" class="element-image">
+                        <h3>${item.element_name || "Unknown"}</h3>
+                        <p><strong>Discovered by:</strong> ${item.discovered_by || "Unknown"} (${item.discovery_year || "Unknown"})</p>
+                        <p><strong>Trivia:</strong> ${item.trivia || "No trivia available"}</p>`;
+                    container.appendChild(card);
+                });
+            })
+            .catch(error => console.error("Error loading discoveries:", error));
+    }
+    document.addEventListener("DOMContentLoaded", loadDiscoveries);
+</script>
+{% endblock %}

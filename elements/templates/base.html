@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Website{% endblock %}</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+        }
+    
+        nav {
+            background-color: #00ADB5;
+            padding: 5px;
+            display: flex;
+            justify-content: space-between; /* Push content to the right */
+            align-items: center;
+            width: 100%; /* Ensure navbar spans full width */
+        }
+    
+        nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+    
+        nav ul li {
+            margin: 0 15px; /* Adjust space between links */
+        }
+    
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            font-family: Arial, sans-serif;
+        }
+    
+        nav ul li a:hover {
+            color: #030303;
+        }
+    
+        .container {
+            padding: 20px;
+        }
+    
+        h1 {
+            color: #333;
+        }
+    
+        .welcome-msg {
+            font-size: 1.2em;
+            margin-top: 20px;
+        }
+    
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+    
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: #333;
+            min-width: 160px;
+            z-index: 1;
+        }
+    
+        .dropdown-content a {
+            color: white;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+    
+        .dropdown-content a:hover {
+            background-color: #575757;
+        }
+    
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+    
+        .account-btn {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 10px 20px;
+        }
+    
+        @media (max-width: 768px) {
+            nav {
+                justify-content: center; /* Center items on small screens */
+            }
+    
+            nav ul {
+                flex-direction: column;
+                align-items: center;
+            }
+    
+            nav ul li {
+                margin: 10px 0;
+            }
+        }
+
+        /* Delete if Needed*/
+
+        .logo a {
+            color: white;
+            font-size: 1.8em;
+            font-weight: bold;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .logo a:hover {
+            color: #ffcc00;
+        }
+        
+
+    </style>
+    
+</head>
+<body>
+
+    <nav>
+        <div class="logo">
+            <a href="{% url 'home' %}">⚛️ Periodic Explorer</a>
+        </div>
+        <ul>
+            <li><a href="{% url 'home' %}">Home</a></li>
+            <li><a href="{% url 'element_list' %}">Periodic Table</a></li>
+            <li><a href="{% url 'discover' %}">Discover</a></li>
+            <li><a href="{% url 'quiz' %}">Quiz</a></li>
+            <li><a href="{% url 'nasa_page' %}">NASA</a></li>
+
+            {% if user.is_authenticated %}
+                <li class="dropdown">
+                    <a href="#" class="account-btn">My Account</a>
+                    <div class="dropdown-content">
+                        <a href="{% url 'password_change' %}">Change Password</a>
+                        <a href="{% url 'logout' %}">Log Out</a>
+                    </div>
+                </li>
+            {% else %}
+                <li><a href="{% url 'login' %}">Log In</a></li>
+                <li><a href="{% url 'signup' %}">Sign Up</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+
+    {% block extra_js %}{% endblock %}
+
+</body>
+</html>

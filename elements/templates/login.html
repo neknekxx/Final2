@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log In</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            background: url("/static/images/BG.jpg") no-repeat center center fixed;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url(/static/images/BG.jpg) no-repeat center center fixed;
+            background-size: cover;
+            filter: blur(1px);
+            z-index: -1;
+        }
+
+        .login-container {
+            display: flex;
+            width: 80%;
+            max-width: 1200px;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+
+        /* About section style */
+        .about-section {
+            flex: 1;
+            background-color: #4A628A;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .about-section h2 {
+            text-align: center;
+            font-size: 24px;
+            color: #000000;
+        }
+
+        .about-section p {
+            font-size: 16px;
+            color: #000000;
+            text-align: justify;
+        }
+
+        /* Login form container */
+        .login-form {
+            flex: 1;
+            background-color: #A3D1C6;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            font-weight: bold;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .form-group button {
+            width: 100%;
+            padding: 10px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+
+        .form-group button:hover {
+            background-color: #555;
+        }
+
+        .error-message {
+            color: red;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        p {
+            font-size: 14px;
+        }
+
+        a {
+            color: #4facfe;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <!-- Left side: About Section -->
+        <div class="about-section">
+            <h2>About Us</h2>
+            <p>
+                Welcome to our website! Here you can explore a wide variety of features, including our interactive periodic table, fun quizzes, and much more. We strive to provide the best experience to our users. Join us to learn, explore, and discover!
+            </p>
+        </div>
+
+        <!-- Right side: Login Form -->
+        <div class="login-form">
+            <h2>Log In</h2>
+
+            <form method="POST">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="id_username">Username:</label>
+                    <input type="text" name="username" id="id_username" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="id_password">Password:</label>
+                    <input type="password" name="password" id="id_password" required>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit">Log In</button>
+                </div>
+
+                {% if error_message %}
+                    <p class="error-message">{{ error_message }}</p>
+                {% endif %}
+            </form>
+
+            <p>Don't have an account? <a href="{% url 'signup' %}">Sign up here</a></p>
+        </div>
+    </div>
+
+</body>
+</html>

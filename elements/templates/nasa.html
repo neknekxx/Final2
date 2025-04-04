@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div id="nasa-section">
+    <h1 class="nasa-title">NASA Astronomy Picture of the Day</h1>
+    <div class="nasa-container">
+        <div class="nasa-card">
+            <img id="nasa-image" class="nasa-image" src="" alt="NASA APOD">
+            <div class="nasa-details">
+                <h2 id="nasa-title">Loading...</h2>
+                <p id="nasa-description">Fetching the latest space image from NASA...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Montserrat:wght@300;600&display=swap');
+
+    /* Space-Themed Background */
+    body {
+        font-family: 'Montserrat', sans-serif;
+        background: url('{% static "images/BG.jpg" %}') no-repeat center center/cover;
+        color: white;
+        text-align: center;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Section Styling */
+    #nasa-section {
+        padding: 50px 20px;
+        background: rgba(0, 0, 0, 0.7);
+        min-height: 100vh;
+    }
+
+    /* Title */
+    .nasa-title {
+        font-size: 3em;
+        font-weight: 700;
+        font-family: 'Orbitron', sans-serif;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-bottom: 20px;
+    }
+
+    .nasa-title{
+        color: #f5efef;
+    }
+
+    /* Card Layout */
+    .nasa-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        animation: fadeIn 1.5s ease-in-out;
+    }
+
+    .nasa-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 20px;
+        width: 80%;
+        max-width: 700px;
+        text-align: center;
+        box-shadow: 0 6px 20px rgba(248, 27, 27, 0.3);
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .nasa-card:hover {
+        transform: scale(1.05);
+    }
+
+    /* Image Styling */
+    .nasa-image {
+        width: 100%;
+        height: auto;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(243, 19, 38, 0.4);
+    }
+
+    /* Description */
+    .nasa-details {
+        padding: 20px;
+    }
+
+    .nasa-details h2 {
+        font-size: 1.8em;
+        color: #00e1ff;
+    }
+
+    .nasa-details p {
+        font-size: 1.2em;
+        margin-top: 10px;
+        line-height: 1.6;
+    }
+
+    /* Fade-in Animation */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<script>
+    const API_KEY = "BTRl9v8b3HSBiQAU3clXiWKRi0iJiXy6e4Qteu2X";  // Replace with your actual API key
+    const url = `https://api.nasa.gov/planetary/apod?api_key=${API_KEY}`;
+
+    async function fetchNASAData() {
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error("NASA API request failed.");
+            
+            const data = await response.json();
+
+            document.getElementById("nasa-title").innerText = data.title;
+            document.getElementById("nasa-image").src = data.url;
+            document.getElementById("nasa-description").innerText = data.explanation;
+        } catch (error) {
+            console.error("Error fetching NASA data:", error);
+            document.getElementById("nasa-title").innerText = "Failed to load NASA data.";
+            document.getElementById("nasa-description").innerText = "Please check your API key.";
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", fetchNASAData);
+</script>
+{% endblock %}

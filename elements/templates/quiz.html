@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block title %}Quiz Page{% endblock %}
+
+{% block content %}
+<style>
+    .quiz-container {
+        text-align: center;
+        max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background-color: #A3D1C6;
+      border-radius: 10px;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      font-family: Arial, sans-serif;
+    }
+    
+    body::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url("/static/images/BG.jpg") no-repeat center center fixed;
+    background-size: cover;
+    filter: blur(2px);  /* Apply the blur */
+    z-index: -1; /* Push the background behind the content */
+}
+
+    .quiz-header {
+        font-size: 40px;
+        font-weight: bold;
+        color: black;
+    }
+
+    .quiz-description {
+        font-size: 20px;
+        color: #000000;
+        margin-bottom: 30px;
+    }
+
+    .quiz-selection {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        flex-wrap: wrap;
+        margin-top: 20px;
+    }
+
+    .quiz-card {
+        width: 320px;
+        background: #DFF2EB;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .quiz-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .quiz-card h3 {
+        margin-bottom: 10px;
+        font-size: 15px;
+        color: #000000;
+    }
+
+    .quiz-card p {
+        font-size: 14px;
+        color: #000000;
+        margin-bottom: 20px;
+    }
+
+    h1{
+        color: #000000;
+    }
+
+    .quiz-button {
+        display: inline-block;
+        padding: 12px 20px;
+        font-size: 16px;
+        font-weight: bold;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background 0.3s, transform 0.2s;
+    }
+
+    .quiz-button:hover {
+        transform: scale(1.05);
+    }
+
+    .mcq-btn {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .jumble-btn {
+        background-color: #2196F3;
+        color: white;
+    }
+</style>
+
+<div class="quiz-container">
+    <h2 class="quiz-header">Periodic Table Quiz</h2>
+    <p class="quiz-description">Test your knowledge with two exciting quiz modes!</p>
+
+    <div class="quiz-selection">
+        <!-- Multiple Choice Quiz -->
+        <div class="quiz-card">
+            <h1>Multiple Choice Quiz</h1>
+            <h3>Do you want to test your knowledge by answering questions about elements?</h3>
+            <a href="{% url 'multiple_choice_quiz' %}">
+                <button class="quiz-button mcq-btn">Start</button>
+            </a>
+        </div>
+
+        <!-- Jumbled Words Quiz -->
+        <div class="quiz-card">
+            <h1>Jumbled Words Quiz</h1>
+            <h3>Can you unscramble element names and prove your chemistry skills?</h3>
+            <a href="{% url 'jumbled_quiz' %}">
+                <button class="quiz-button jumble-btn">Start</button>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

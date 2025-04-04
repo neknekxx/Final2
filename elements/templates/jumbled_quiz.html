@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+
+{% block title %}Jumbled Words Quiz{% endblock %}
+
+{% block content %}
+<style>
+    body::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url("/static/images/BG.jpg") no-repeat center center fixed;
+        background-size: cover;
+        filter: blur(2px);
+        z-index: -1;
+    }
+
+    .quiz-container {
+        max-width: 500px;
+        margin: 50px auto;
+        padding: 20px;
+        background-color: #7AB2D3;
+        border-radius: 10px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        font-family: Arial, sans-serif;
+    }
+
+    .quiz-box {
+        border: 2px solid #4CAF50;
+        padding: 25px;
+        border-radius: 15px;
+        width: 450px;
+        text-align: center;
+        background-color: #A3D1C6;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .quiz-box h2 {
+        color: #2196F3;
+        margin-bottom: 15px;
+    }
+
+    .input-box {
+        padding: 10px;
+        width: 80%;
+        margin-top: 10px;
+        border: 2px solid #2196F3;
+        border-radius: 5px;
+        font-size: 16px;
+        text-align: center;
+    }
+
+    .submit-btn {
+        background-color: #2196F3;
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 15px;
+        font-size: 16px;
+        transition: background-color 0.3s;
+    }
+
+    .submit-btn:hover {
+        background-color: #1976D2;
+    }
+
+    .feedback {
+        margin-top: 15px;
+        font-weight: bold;
+    }
+
+    .back-btn {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 15px;
+        font-size: 16px;
+        transition: background-color 0.3s;
+    }
+
+    .back-btn:hover {
+        background-color: #388E3C;
+    }
+</style>
+
+<div class="quiz-container">
+    <div class="quiz-box">
+        <h2>Jumbled Words Quiz</h2>
+        <p>Unscramble the letters to guess the element name!</p>
+        <h3 id="questionNumber">Question 1/10</h3>
+        <h1 id="jumbledWord"></h1>
+        <form id="jumbledForm">
+            <input type="text" id="jumbledAnswer" required class="input-box">
+            <button type="button" onclick="checkJumbledAnswer()" class="submit-btn">Submit</button>
+        </form>
+        <div id="jumbledFeedback" class="feedback"></div>
+        <button onclick="goBack()" class="back-btn" style="display: none;">Go Back</button>
+    </div>
+</div>
+
+<script>
+    const jumbledWords = [
+        { scrambled: "ngaremmui", answer: "germanium" },
+        { scrambled: "sinmagemu", answer: "magnesium" },
+        { scrambled: "mehilu", answer: "helium" },
+        { scrambled: "bcoarn", answer: "carbon" },
+        { scrambled: "suimod", answer: "sodium" },
+        { scrambled: "luccaim", answer: "calcium" },
+        { scrambled: "rpocep", answer: "copper" },
+        { scrambled: "rsuluph", answer: "sulphur" },
+        { scrambled: "lmiamuun", answer: "aluminum" },
+        { scrambled: "gtnsunet", answer: "tungsten" },
+        { scrambled: "dhruimo", answer: "rhodium" },
+        { scrambled: "voreumlfi", answer: "flerovium" },
+        { scrambled: "lanmuitp", answer: "platinum" }
+    ];
+
+    let shuffledQuestions = [];  
+    let currentJumbled = 0;
+    let score = 0;
+
+    function shuffleArray(array) {
+        return array.sort(() => Math.random() - 0.5);
+    }
+
+    function startQuiz() {
+        shuffledQuestions = shuffleArray([...jumbledWords]).slice(0, 10); 
+        currentJumbled = 0;
+        score = 0;
+        loadJumbledWord();
+    }
+
+    function loadJumbledWord() {
+        if (currentJumbled < shuffledQuestions.length) {
+            document.getElementById('jumbledWord').textContent = shuffledQuestions[currentJumbled].scrambled;
+            document.getElementById('questionNumber').textContent = `Question ${currentJumbled + 1}/10`;
+            document.getElementById('jumbledAnswer').value = "";
+        } else {
+            document.getElementById('jumbledForm').style.display = "none";
+            document.getElementById('jumbledFeedback').innerHTML = `<h3>Quiz Completed! Your Score: ${score}/10</h3>`;
+            document.querySelector(".back-btn").style.display = "block"; 
+        }
+    }
+
+    function checkJumbledAnswer() {
+    let userAnswer = document.getElementById('jumbledAnswer').value.toLowerCase().trim();
+    
+    if (userAnswer === shuffledQuestions[currentJumbled].answer) {
+        document.getElementById('jumbledFeedback').innerHTML = "<p style='color: green;'>Correct!</p>";
+        score++; // Increase score only for correct answers
+    } else {
+        document.getElementById('jumbledFeedback').innerHTML = `<p style='color: red;'>Incorrect. The correct answer was ${shuffledQuestions[currentJumbled].answer}.</p>`;
+    }
+
+    currentJumbled++; // Move to the next question no matter what
+
+    setTimeout(() => {
+        document.getElementById('jumbledFeedback').innerHTML = ""; // Clear feedback message
+        loadJumbledWord(); // Load the next question
+    }, 1500);
+    }
+
+
+    function goBack() {
+        window.location.href = "{% url 'quiz' %}";
+    }
+
+
+    document.getElementById('jumbledAnswer').addEventListener('keypress', function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault(); // Prevent form submission
+            checkJumbledAnswer();
+        }
+    });
+
+    startQuiz();
+</script>
+{% endblock %}

@@ -1,0 +1,117 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ element.name }} - Element Details</title>
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  <style>
+    .container {
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background-color: #7AB2D3;
+      border-radius: 10px;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    .element-card {
+      padding: 20px;
+    }
+
+    .back-link {
+      display: block;
+      margin-top: 20px;
+      text-decoration: none;
+      color: #007bff;
+      font-weight: bold;
+    }
+
+    .back-link:hover {
+      color: #0056b3;
+    }
+
+    .btn {
+      margin: 10px;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .edit-btn {
+      background-color: #ffc107;
+      color: #333;
+    }
+
+    .upload-btn {
+      background-color: #28a745;
+      color: white;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .image-container {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .image-container img {
+      width: 200px;
+      height: auto;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="element-card">
+      <h1>{{ element.name }} ({{ element.symbol }})</h1>
+      <p><strong>Atomic Number:</strong> {{ element.atomic_number }}</p>
+      <p><strong>Atomic Weight:</strong> {{ element.atomic_weight }}</p>
+      <p><strong>Category:</strong> {{ element.category }}</p>
+      
+      <p id="desc"><strong>Description:</strong> {{ element.description }}</p>
+
+      {% if element.image %}
+        <div class="image-container">
+          <img src="{{ element.image.url }}" alt="{{ element.name }}">
+        </div>
+      {% endif %}
+
+      <button class="btn edit-btn" onclick="toggleForm('edit-form')">Edit Description</button>
+      <button class="btn upload-btn" onclick="toggleForm('image-form')">Add Image</button>
+
+      <!-- Edit Description Form -->
+      <form id="edit-form" class="hidden" method="POST" action="{% url 'update_element' element.symbol %}">
+        {% csrf_token %}
+        <textarea name="description" rows="4" cols="50">{{ element.description }}</textarea>
+        <button type="submit" class="btn">Save</button>
+      </form>
+
+      <!-- Upload Image Form -->
+      <form id="image-form" class="hidden" method="POST" action="{% url 'upload_image' element.symbol %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="image">
+        <button type="submit" class="btn">Upload</button>
+      </form>
+
+    </div>
+
+    <a class="back-link" href="{% url 'element_list' %}">⬅ Back to Periodic Table</a>
+  </div>
+
+  <script>
+    function toggleForm(formId) {
+      document.getElementById(formId).classList.toggle('hidden');
+    }
+  </script>
+
+</body>
+</html>

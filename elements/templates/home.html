@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+
+{% block title %}Home Page{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="welcome-container">
+            {% if user.is_authenticated %}
+                <p class="welcome-msg">Hello, {{ user.username }}!</p>
+            {% endif %}
+            <h1>Welcome to our Web App!</h1>
+        </div>
+
+        <!-- Two-column layout for Description & CTA -->
+        <div class="content-grid">
+            <div class="description-box">
+                <h2>About This Web App</h2>
+                <p>This web application is designed to help anyone—whether you're a student, a science enthusiast, or just someone curious about the Periodic Table! Our goal is to provide an intuitive and user-friendly platform where you can learn about the elements and their properties in a fun and interactive way.</p>
+                <p>Not only will you be able to explore the elements and their respective categories, but you can also dive deeper into each element's details, including its atomic number, symbol, and more!</p>
+                <p>Whether you're studying for an exam, teaching others, or just interested in science, this website is here to help you understand the Periodic Table like never before!</p>
+                <p>Log in to save your progress and take quizzes to test your knowledge.</p>
+            </div>
+
+            <div class="cta-box">
+                <h3>Get Started</h3>
+                <p>Ready to dive in? Start by exploring the Periodic Table or test your knowledge with a quiz!</p>
+                <p>If you want to help us improve this web application, you can contribute by updating the description of an element or adding an image to enhance its details. Your contributions will help make this platform more informative and engaging for everyone!</p>
+                <a href="{% url 'element_list' %}" class="cta-btn">Explore Periodic Table</a>
+                <a href="{% url 'quiz' %}" class="cta-btn">Take a Quiz</a>
+            </div>
+        </div>
+
+        {% if not user.is_authenticated %}
+            <p class="welcome-msg">Please log in to access more features, such as quizzes and personalized content.</p>
+        {% endif %}
+    </div>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("/static/images/BG.jpg") no-repeat center center fixed;
+            background-size: cover;
+            filter: blur(2px);
+            z-index: -1;
+        }       
+
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .welcome-container {
+            background-color: #4A628A;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .welcome-msg {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        h1 {
+            margin-top: 5px;
+            font-size: 2rem;
+            color: black;
+        }
+
+        /* Two-column layout */
+        .content-grid {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        /* Styling for description box and CTA box */
+        .description-box, .cta-box {
+            flex: 1;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            background-color: #A3D1C6;
+        }
+
+        .description-box {
+            text-align: left;
+        }
+
+        .cta-box {
+            text-align: center;
+        }
+
+        .description-box h2, .cta-box h3 {
+            font-size: 1.8rem;
+            color: #2c3e50;
+            text-align: center;
+        }
+
+        .description-box p, .cta-box p {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #000000;
+        }
+
+        /* CTA Buttons */
+        .cta-btn {
+            display: inline-block;
+            margin: 10px;
+            padding: 12px 24px;
+            background-color: #3498db;
+            color: white;
+            font-weight: bold;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        .cta-btn:hover {
+            background-color: #2980b9;
+        }
+
+        /* Hover effect for the description box */
+        .description-box:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Fade-in animation */
+        .container {
+            opacity: 0;
+            animation: fadeIn 1s forwards;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Responsive: Stack elements on small screens */
+        @media (max-width: 768px) {
+            .content-grid {
+                flex-direction: column;
+            }
+        }
+    </style>
+{% endblock %}

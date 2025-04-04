@@ -1,0 +1,205 @@
+{% extends 'base.html' %}
+
+{% block title %}Multiple Choice Quiz{% endblock %}
+
+{% block content %}
+<style>
+    .quiz-container {
+        max-width: 500px;
+        margin: 50px auto;
+        padding: 20px;
+        background-color: #7AB2D3;
+        border-radius: 10px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        font-weight: bold;
+        font-family: Arial, sans-serif;
+    }
+
+    body::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 150%;
+        background: url("/static/images/BG.jpg") no-repeat center center fixed;
+        background-size: cover;
+        filter: blur(2px);
+        z-index: -1;
+    }
+
+    .quiz-box {
+        border: 2px solid #4CAF50;
+        padding: 25px;
+        border-radius: 15px;
+        width: 450px;
+        text-align: center;
+        background-color: #A3D1C6;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .quiz-box h1 {
+        color: #000000;
+        margin-bottom: 15px;
+    }
+
+    .options label {
+        display: block;
+        padding: 10px;
+        margin: 8px 0;
+        border-radius: 5px;
+        cursor: pointer;
+        background-color: #4CAF50;
+        color: white;
+        transition: background-color 0.3s ease-in-out;
+    }
+
+    .options label:hover {
+        background-color: #4A628A;
+    }
+
+    .next-btn, .back-btn {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 15px;
+        font-size: 16px;
+        transition: background-color 0.3s;
+    }
+
+    .next-btn:hover, .back-btn:hover {
+        background-color: #4A628A;
+    }
+</style>
+
+<div class="quiz-container">
+    <div class="quiz-box">
+        <h1>Multiple Choice Quiz</h1>
+        <h5>Answer 10 questions and see how well you know the periodic table!</h5>
+        <h3 id="questionNumber">Question 1/10</h3>
+        <h2 id="questionText"></h2>
+        <form id="mcqForm">
+            <div id="mcqOptions" class="options"></div>
+            <button type="button" onclick="nextMcqQuestion()" class="next-btn">Next</button>
+        </form>
+        <div id="mcqFeedback" style="margin-top: 10px; font-weight: bold;"></div>
+        <button id="goBackBtn" class="back-btn" onclick="goBack()" style="display: none;">Go Back</button>
+    </div>
+</div>
+
+<script>
+    // Full list of questions
+    const allQuestions = [
+    { question: "What is the only metal that is liquid at room temperature?", options: ["Iron", "Mercury", "Aluminum", "Silver"], answer: "Mercury" },
+    { question: "Which noble gas is the heaviest?", options: ["Neon", "Argon", "Xenon", "Radon"], answer: "Radon" },
+    { question: "What element has the atomic number 79?", options: ["Silver", "Gold", "Platinum", "Palladium"], answer: "Gold" },
+    { question: "Which element is commonly used in fireworks for red color?", options: ["Calcium", "Strontium", "Barium", "Magnesium"], answer: "Strontium" },
+    { question: "Which element is known as 'Wolfram' in German?", options: ["Tungsten", "Vanadium", "Molybdenum", "Nickel"], answer: "Tungsten" },
+    { question: "What is the most abundant element in the Earth's crust?", options: ["Oxygen", "Silicon", "Aluminum", "Iron"], answer: "Oxygen" },
+    { question: "Which element is used in nuclear power plants as fuel?", options: ["Thorium", "Uranium", "Plutonium", "Radium"], answer: "Uranium" },
+    { question: "Which element is found in bananas and helps regulate muscle function?", options: ["Sodium", "Potassium", "Magnesium", "Calcium"], answer: "Potassium" },
+    { question: "What is the chemical symbol for Tin?", options: ["Sn", "Ti", "Tn", "Te"], answer: "Sn" },
+    { question: "Which element is known as the 'building block of life'?", options: ["Nitrogen", "Carbon", "Phosphorus", "Sulfur"], answer: "Carbon" },
+    { question: "Which gas is used in light bulbs to prevent the filament from burning?", options: ["Argon", "Neon", "Krypton", "Xenon"], answer: "Argon" },
+    { question: "What is the atomic number of Helium?", options: ["1", "2", "3", "4"], answer: "2" },
+    { question: "Which element is found in chlorophyll and essential for photosynthesis?", options: ["Calcium", "Magnesium", "Iron", "Sodium"], answer: "Magnesium" },
+    { question: "Which element is used in making stainless steel?", options: ["Nickel", "Chromium", "Cobalt", "Zinc"], answer: "Chromium" },
+    { question: "Which non-metal exists as a liquid at room temperature?", options: ["Iodine", "Bromine", "Chlorine", "Fluorine"], answer: "Bromine" },
+    { question: "What element is commonly used in batteries?", options: ["Lithium", "Cadmium", "Zinc", "Lead"], answer: "Lithium" },
+    { question: "Which element is used to make glass and ceramics?", options: ["Silicon", "Boron", "Aluminum", "Calcium"], answer: "Silicon" },
+    { question: "Which element is used in fluorescent lights?", options: ["Neon", "Mercury", "Krypton", "Radon"], answer: "Mercury" },
+    { question: "Which element is the primary component of rust?", options: ["Oxygen", "Iron", "Sulfur", "Copper"], answer: "Iron" },
+    { question: "Which element is commonly found in dental fillings?", options: ["Lead", "Silver", "Mercury", "Zinc"], answer: "Mercury" },
+    { question: "What is the atomic symbol for Phosphorus?", options: ["Po", "Ph", "P", "Ps"], answer: "P" },
+    { question: "Which element is essential for bone health?", options: ["Magnesium", "Calcium", "Zinc", "Phosphorus"], answer: "Calcium" },
+    { question: "Which element is found in matches and explosives?", options: ["Sulfur", "Phosphorus", "Potassium", "Sodium"], answer: "Phosphorus" },
+    { question: "Which element is used in galvanization to prevent rusting?", options: ["Zinc", "Nickel", "Chromium", "Lead"], answer: "Zinc" },
+    { question: "What element has the atomic number 33?", options: ["Uranium", "Plutonium", "Neptunium", "Arsenic"], answer: "Arsenic" },
+    { question: "Which gas makes up about 78% of Earth's atmosphere?", options: ["Oxygen", "Carbon Dioxide", "Nitrogen", "Argon"], answer: "Nitrogen" },
+    { question: "Which element is the primary component of table salt?", options: ["Sodium", "Chlorine", "Potassium", "Calcium"], answer: "Sodium" },
+    { question: "What is the chemical symbol for Lead?", options: ["Le", "Pb", "Ld", "P"], answer: "Pb" },
+    { question: "Which element is used in smoke detectors?", options: ["Radon", "Americium", "Plutonium", "Neptunium"], answer: "Americium" }
+];
+
+
+    // Shuffle and pick 10 random questions
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+    shuffleArray(allQuestions);
+    const questions = allQuestions.slice(0, 10);
+
+    let currentQuestion = 0;
+    let score = 0;
+    let userAnswers = [];
+
+    function loadQuestion() {
+        if (currentQuestion < questions.length) {
+            document.getElementById('questionText').textContent = questions[currentQuestion].question;
+            document.getElementById('questionNumber').textContent = `Question ${currentQuestion + 1}/10`;
+
+            let optionsHtml = "";
+            questions[currentQuestion].options.forEach(option => {
+                optionsHtml += `<label><input type="radio" name="answer" value="${option}"> ${option}</label>`;
+            });
+
+            document.getElementById('mcqOptions').innerHTML = optionsHtml;
+        } else {
+            showResults();
+        }
+    }
+
+    function nextMcqQuestion() {
+        let selectedAnswer = document.querySelector('input[name="answer"]:checked');
+        if (selectedAnswer) {
+            userAnswers.push({
+                question: questions[currentQuestion].question,
+                selected: selectedAnswer.value,
+                correct: questions[currentQuestion].answer
+            });
+
+            if (selectedAnswer.value === questions[currentQuestion].answer) {
+                score++;
+            }
+            currentQuestion++;
+            loadQuestion();
+        } else {
+            alert("Please select an answer.");
+        }
+    }
+
+    function showResults() {
+    document.getElementById('mcqForm').style.display = "none";
+    let resultHtml = `<h3>Your Score: ${score}/10</h3><h4>Correct Answers:</h4><ul style="font-size: 12px;">`;
+
+    userAnswers.forEach((item, index) => {
+        let isCorrect = item.selected === item.correct;
+        resultHtml += `
+            <li>
+                <strong>Q${index + 1}: ${item.question}</strong><br>
+                Your Answer: <span style="color: ${isCorrect ? 'green' : 'red'};">${item.selected}</span><br>
+                <span style="color: green;">Correct Answer: ${item.correct}</span>
+            </li><br>
+        `;
+    });
+
+    resultHtml += `</ul>`;
+    document.getElementById('mcqFeedback').innerHTML = resultHtml;
+    document.getElementById('goBackBtn').style.display = "block";
+    }
+
+
+    function goBack() {
+        window.location.href = "/quiz";
+    }
+
+    loadQuestion();
+</script>
+{% endblock %}

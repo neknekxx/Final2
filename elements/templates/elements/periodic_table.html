@@ -1,0 +1,370 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}Periodic Table{% endblock %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Periodic Table</title>
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  <style>
+    /* Background style for the Periodic Table Container */
+    .table-container {
+      background-color: #393E46; /* Light gray background color */
+      padding: 20px;
+      position: relative;
+    }
+
+/* Tooltip container style */
+    .tooltip {
+        position: absolute;
+        background-color: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+        display: none;
+        pointer-events: none;
+        transition: opacity 0.3s ease-in-out;
+        z-index: 1000;
+        left: 100%;
+        top: 0;
+        margin-left: 20px;
+        width: 220px;
+      font-size: 1.1em;
+      line-height: 1.5;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- Page Heading Container -->
+  <div class="heading-container">
+    <h1>Periodic Table of Elements</h1>
+  </div>
+
+  <!-- Category Wrapper -->
+  <div class="category-wrapper">
+    <div class="category-legend-container">
+
+      <!-- METALS GROUP -->
+      <div class="cat-group">
+        <div class="group-title">Metals</div>
+        <div class="cat-sub alkali-metal" onmouseover="highlightOnlyCategory('alkali-metal')" onmouseout="unhighlightAll()">Alkali metals</div>
+        <div class="cat-sub alkaline-earth-metal" onmouseover="highlightOnlyCategory('alkaline-earth-metal')" onmouseout="unhighlightAll()">Alkaline earth metals</div>
+        <div class="cat-sub lanthanide" onmouseover="showLanthanides(); highlightOnlyCategory('lanthanide')" onmouseout="hideLanthanides(); unhighlightAll()">Lanthanides</div>
+        <div class="cat-sub actinide" onmouseover="showActinides(); highlightOnlyCategory('actinide')" onmouseout="hideActinides(); unhighlightAll()">Actinides</div>
+        <div class="cat-sub transition-metal" onmouseover="highlightOnlyCategory('transition-metal')" onmouseout="unhighlightAll()">Transition metals</div>
+        <div class="cat-sub post-transition-metal" onmouseover="highlightOnlyCategory('post-transition-metal')" onmouseout="unhighlightAll()">Post-transition metals</div>
+      </div>
+
+      <!-- NONMETALS GROUP -->
+      <div class="cat-group">
+        <div class="group-title">Nonmetals</div>
+        <div class="cat-sub metalloid" onmouseover="highlightOnlyCategory('metalloid')" onmouseout="unhighlightAll()">Metalloids</div>
+        <div class="cat-sub non-metal" onmouseover="highlightOnlyCategory('non-metal')" onmouseout="unhighlightAll()">Reactive nonmetals</div>
+        <div class="cat-sub halogen" onmouseover="highlightOnlyCategory('halogen')" onmouseout="unhighlightAll()">Halogens</div>
+        <div class="cat-sub noble-gas" onmouseover="highlightOnlyCategory('noble-gas')" onmouseout="unhighlightAll()">Noble gases</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Periodic Table Container -->
+  <div class="table-container">
+    {% for element in elements %}
+      <div 
+        class="element 
+          {% if element.category == 'Lanthanide' %}lanthanide-element{% endif %}
+          {% if element.category == 'Actinide' %}actinide-element{% endif %}
+          {{ element.category|lower|replace:" ,-" }}"
+        "
+        data-symbol="{{ element.symbol }}"
+        data-name="{{ element.name }}"
+        data-atomic-number="{{ element.atomic_number }}"
+        data-category="{{ element.category }}"
+        onmouseover="showTooltip(event, this)"
+        onmouseout="hideTooltip()"
+        onclick="window.location.href='/element/{{ element.symbol }}/'"
+      >
+        <strong>{{ element.symbol }}</strong><br>
+        {{ element.atomic_number }}
+      </div>
+    {% endfor %}
+
+    <!-- "Bridge" box for La–Lu in row 6, col 3 -->
+    <div class="element lanth-box" onclick="toggleLanthanides()">57–71</div>
+
+    <!-- "Bridge" box for Ac–Lr in row 7, col 3 -->
+    <div class="element act-box" onclick="toggleActinides()">89–103</div>
+  </div>
+
+  <!-- Tooltip container for displaying element details -->
+  <div id="element-tooltip" class="tooltip"></div>
+
+  <button id="chatbot-toggle" onclick="toggleChatbot()">💬 Chat</button>
+
+  <div id="chatbot">
+    <div id="chatbot-header">
+      <span>AI Chatbot</span>
+      <button id="close-chat" onclick="toggleChatbot()">✖</button>
+    </div>
+    <div id="chat-messages"></div>
+    <div id="chat-input">
+      <input type="text" id="userInput" placeholder="Ask me about elements..." />
+      <button onclick="sendMessage()">➤</button>
+    </div>
+  </div>
+
+  <script>
+    // Tooltip logic
+    function showTooltip(event, element) {
+        const tooltip = document.getElementById('element-tooltip');
+        const name = element.getAttribute('data-name');
+        const symbol = element.getAttribute('data-symbol');
+        const atomicNumber = element.getAttribute('data-atomic-number');
+        const category = element.getAttribute('data-category');
+
+        // Set tooltip content
+        tooltip.innerHTML = `<strong>${name}</strong><br>
+                            Symbol: ${symbol}<br>
+                            Atomic Number: ${atomicNumber}<br>
+                            Category: ${category}`;
+
+        // Position the tooltip beside the category container
+        const categoryContainer = document.querySelector('.category-legend-container');
+        const rect = categoryContainer.getBoundingClientRect();
+        tooltip.style.top = rect.top + 'px';
+        tooltip.style.left = rect.right + 20 + 'px'; // 20px spacing from the category
+
+        // Show the tooltip
+        tooltip.style.display = 'block';
+    }
+
+    function hideTooltip() {
+      document.getElementById('element-tooltip').style.display = 'none';
+    }
+
+    /* TRACK WHETHER LAN/ACT ARE TOGGLED VIA THE BRIDGE BOXES */
+    let lanthanidesToggled = false;
+    let actinidesToggled = false;
+
+    /* ========== DIM / HIGHLIGHT LOGIC ========== */
+    function highlightOnlyCategory(cat) {
+      // Dim all elements
+      const allElements = document.querySelectorAll('.element');
+      allElements.forEach(el => el.classList.add('dimmed'));
+
+      // Undim only the selected category
+      const catElements = document.querySelectorAll('.' + cat);
+      catElements.forEach(el => el.classList.remove('dimmed'));
+    }
+
+    function unhighlightAll() {
+      // Remove 'dimmed' from all
+      const allElements = document.querySelectorAll('.element');
+      allElements.forEach(el => el.classList.remove('dimmed'));
+    }
+
+    /* ========== SHOW / HIDE LAN + ACT FOR LEGEND HOVER ========== */
+    function showLanthanides() {
+      const lanth = document.querySelectorAll('.lanthanide-element');
+      lanth.forEach(el => {
+        el.style.display = 'block';
+      });
+    }
+    function hideLanthanides() {
+      if (!lanthanidesToggled) {
+        const lanth = document.querySelectorAll('.lanthanide-element');
+        lanth.forEach(el => {
+          el.style.display = 'none';
+        });
+      }
+    }
+    function showActinides() {
+      const acts = document.querySelectorAll('.actinide-element');
+      acts.forEach(el => {
+        el.style.display = 'block';
+      });
+    }
+    function hideActinides() {
+      if (!actinidesToggled) {
+        const acts = document.querySelectorAll('.actinide-element');
+        acts.forEach(el => {
+          el.style.display = 'none';
+        });
+      }
+    }
+
+    /* ========== TOGGLE (CALLED WHEN CLICKING BRIDGE BOX) ========== */
+    function toggleLanthanides() {
+      lanthanidesToggled = !lanthanidesToggled;
+      if (lanthanidesToggled) {
+        showLanthanides();
+      } else {
+        hideLanthanides();
+      }
+    }
+    function toggleActinides() {
+      actinidesToggled = !actinidesToggled;
+      if (actinidesToggled) {
+        showActinides();
+      } else {
+        hideActinides();
+      }
+    }
+
+    function toggleChatbot() {
+      const chatbot = document.getElementById("chatbot");
+      chatbot.style.display = chatbot.style.display === "flex" ? "none" : "flex";
+    }
+
+    async function sendMessage() {
+      let userInput = document.getElementById("userInput").value.trim();
+      let chatbox = document.getElementById("chat-messages");
+
+      if (!userInput) return;
+
+      chatbox.innerHTML += `<p><strong>You:</strong> ${userInput}</p>`;
+
+      const response = await fetch("/chatbot-response/", {  // Calls Django backend
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: JSON.stringify({ message: userInput })
+      });
+
+      const data = await response.json();
+      let botReply = data.reply || "Sorry, I couldn't process that request.";
+
+      chatbox.innerHTML += `<p><strong>Bot:</strong> ${botReply}</p>`;
+
+      document.getElementById("userInput").value = "";
+      chatbox.scrollTop = chatbox.scrollHeight;
+    }
+    
+  </script>
+
+<style>
+  /* Chatbot Button */
+  #chatbot-toggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 12px 16px;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: background 0.3s ease;
+  }
+
+  #chatbot-toggle:hover {
+    background-color: #0056b3;
+  }
+
+  /* Chatbot Window */
+  #chatbot {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    width: 320px;
+    background: rgb(39, 38, 38);
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    display: none;
+    flex-direction: column;
+  }
+
+  #chatbot-header {
+    background: #007bff;
+    color: white;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 10px 10px 0 0;
+  }
+
+  #chatbot-header button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+  #chat-messages {
+    padding: 10px;
+    height: 250px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  #chat-messages p {
+    padding: 8px;
+    border-radius: 6px;
+    max-width: 75%;
+  }
+
+  #chat-messages p strong {
+    display: block;
+    font-weight: bold;
+  }
+
+  #chat-messages p:nth-child(odd) {
+    align-self: flex-start;
+    background: #d46363;
+  }
+
+  #chat-messages p:nth-child(even) {
+    align-self: flex-end;
+    background: #007bff;
+    color: white;
+  }
+
+  #chat-input {
+    display: flex;
+    border-top: 1px solid #ddd;
+    padding: 10px;
+  }
+
+  #chat-input input {
+    flex-grow: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+
+  #chat-input button {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 8px;
+    margin-left: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  #chat-input button:hover {
+    background: #0056b3;
+  }
+</style>
+
+
+
+</body>
+</html>
+{% endblock %}
+
+
