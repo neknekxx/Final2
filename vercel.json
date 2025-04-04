@@ -1,13 +1,13 @@
 {
     "builds": [{
-        "src": "PERIODIC_TABLE_MAINAPP/wsgi.py",
+        "src": "manage.py",
         "use": "@vercel/python",
         "config": { "maxLambdaSize": "15mb", "runtime": "python3.9" }
     }],
     "routes": [
         {
             "src": "/(.*)",
-            "dest": "PERIODIC_TABLE_MAINAPP/wsgi.py"
+            "dest": "manage.py"
         }
     ]
 }
